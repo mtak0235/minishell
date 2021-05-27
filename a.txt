@@ -1,0 +1,17 @@
+total 232
+drwxr-xr-x  16 mtak  2020_seoul    544 May 27 15:34 .
+drwxr-xr-x   7 mtak  2020_seoul    238 May 27 15:18 ..
+drwxr-xr-x  12 mtak  2020_seoul    408 May 27 15:09 .git
+-rwxr-xr-x   1 mtak  2020_seoul  53032 May 27 15:30 a.out
+drwxr-xr-x   3 mtak  2020_seoul    102 May 27 15:21 a.out.dSYM
+-rw-r--r--   1 mtak  2020_seoul      0 May 27 15:34 a.txt
+drwxr-xr-x  13 mtak  2020_seoul    442 May 27 15:09 execute
+drwxr-xr-x  48 mtak  2020_seoul   1632 May 27 15:09 libft
+-rw-r--r--   1 mtak  2020_seoul   5895 May 27 15:09 main.c
+-rw-r--r--   1 mtak  2020_seoul    863 May 27 15:09 main2.c
+-rw-r--r--   1 mtak  2020_seoul   2976 May 27 15:09 main3.c
+-rw-r--r--   1 mtak  2020_seoul    546 May 27 15:09 minishell.h
+-rw-r--r--   1 mtak  2020_seoul   6595 May 27 15:31 shell.c
+-rw-r--r--   1 mtak  2020_seoul   3616 May 27 15:09 structure.drawio
+drwxr-xr-x   3 mtak  2020_seoul    102 May 27 15:09 test
+-rw-r--r--   1 mtak  2020_seoul  30726 May 27 15:09 test.txt

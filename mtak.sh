@@ -1,0 +1,1 @@
+gcc ./libft/libft.a shell.c mtak_export.c -o shell

@@ -1,0 +1,4 @@
+1. ;, |를 기준으로 자른다.
+ex) ls ; env | grep NAPARK_GOOD  ---> 'ls', 'env', 'grep NAPARK_GOOD' 
+2. |, ;은 flag로 남겨두고
+3. 다시 커맨드와 argument를 자른다.(여기서 NAPARK_GOOD을 변수로 인식해야한다.)
