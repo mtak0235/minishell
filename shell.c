@@ -8,7 +8,7 @@
 #include <sys/wait.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include "libft/libft.h"
+#include "./libft/libft.h"
 
 #include "mtak.h"
 
@@ -59,7 +59,7 @@ void redirectOut(char *fileName)
 /**
  * Runs a command.
  * 
- * @param *args[] the args to run
+ * *args[] the args to run
  */
 
 char	**absolute_path()
@@ -327,6 +327,7 @@ int main(int ac, char **av, char **env)
     while (should_run) {
 		print_dir();
 		get_next_line(&input);
+printf("input : %s\n", input);
 
         char *tokens;
         tokens = tokenize(input);
@@ -337,23 +338,18 @@ int main(int ac, char **av, char **env)
         }
 		char *arg = ft_strtok(tokens, " ");
         int i = 0;
-		// while (env[i])
-		// {
-		// 	tmp = ft_strdup(env[i])
-		// 	new = create_node(tmp);
-		// 	ft_lstadd_back(&head, new);
-		// }
-		t_envlst *envlst;
-		init_envlst(envlst, env);
-		if (!ft_strncmp(arg, "export", 6))
-			{
-				while (envlst)
-				{
-					printf("%s\n", envlst->data);
-					envlst = envlst->next;
-				}
-				func_export((arg = ft_strtok(tokens, " ")), envlst);
-			}
+
+/* export 구현 */
+		t_list *envlst;
+		init_list(&envlst, env);
+		if (!ft_strncmp(input, "export", 6))
+			func_export(input, &envlst);
+/* unset 구현 */
+		if (!ft_strncmp(input, "unset", 5))
+			func_unset(input, &envlst);
+/* env 구현 */
+		if (!ft_strncmp(input, "env", 3))
+			func_env(envlst);
 
 
         while (arg) {
