@@ -1,20 +1,5 @@
-#include <sys/types.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <ctype.h>
-#include <stdlib.h>
-#include "./libft/libft.h"
+#include "minishell.h"
 
-#include "mtak.h"
-
-#define MAX_LINE 1024 // The maximum length command
-# define DOUBLE 1
-# define SINGLE 2
 
 int should_run = 1;  // flag to determine when to exit program
 int should_wait = 1; // flag to determine if process should run in the background
@@ -24,7 +9,6 @@ int		get_next_line(char **line)
 	char buf[1] = {0};
 	char *save = malloc(1000);
 	int rd = 0, count = 0;
-
 	if(!line) return (-1);
 	save[0] = 0;
 	while ((rd = read(0, buf, 1)) > 0)
@@ -37,30 +21,26 @@ int		get_next_line(char **line)
 	return (rd);
 }
 
-void redirectIn(char *fileName)
+void redirect_in(char *file_name)
 {
-    int in = open(fileName, O_RDONLY);
+    int in = open(file_name, O_RDONLY);
     dup2(in, 0);
     close(in);
 }
 
-/**
- * Redirects stdout to a file.
- * 
- * @param fileName the file to redirect to
- */
-void redirectOut(char *fileName)
+void redirect_out(char *file_name)
 {
-    int out = open(fileName, O_WRONLY | O_TRUNC | O_CREAT, 0600);
+    int out = open(file_name, O_WRONLY | O_TRUNC | O_CREAT, 0600);
     dup2(out, 1);
     close(out);
 }
 
-/**
- * Runs a command.
- * 
- * *args[] the args to run
- */
+void	redirect_append(char *file_name)
+{
+	int	out = open(file_name, O_WRONLY | O_APPEND | O_CREAT, 0600);
+	dup2(out, 1);
+	close(out);
+}
 
 char	**absolute_path()
 {
@@ -101,19 +81,24 @@ void	check_path_n_execve(char **cmds, char **env)
 	char	*tmp;
 	int	i;
 
-	if (ft_strchcmp(cmds[0], '/'))
-		execve(cmds[0], cmds, env);
+	if (!is_builtin(cmds[0], cmds[1]))
+		return ;
 	else
 	{
-		path = absolute_path();
-		i = 0;
-		while (path[i])
+		if (ft_strchcmp(cmds[0], '/'))
+			execve(cmds[0], cmds, env);
+		else
 		{
-			tmp = ft_strjoin(path[i], cmds[0]);
-			free(path[i]);
-			execve(tmp, cmds, env);
-			free(tmp);
-			i++;
+			path = absolute_path();
+			i = 0;
+			while (path[i])
+			{
+				tmp = ft_strjoin(path[i], cmds[0]);
+				free(path[i]);
+				execve(tmp, cmds, env);
+				free(tmp);
+				i++;
+			}
 		}
 	}
 }
@@ -131,39 +116,18 @@ void run(char *args[], char **env)
                 check_path_n_execve(args, env);
             }
             else { /* parent process */
-                if (should_wait) {
+                //if (should_wait) {
                     waitpid(pid, NULL, 0);
-                } else {
-                    should_wait = 0;
-                }
+                //} else {
+                //    should_wait = 0;
+                //}
             }
-            redirectIn("/dev/tty");
-            redirectOut("/dev/tty");
+            redirect_in("/dev/tty");
+            redirect_out("/dev/tty");
         }
     else {
         should_run = 0;
     }
-}
-
-/**
- * Creates a pipe.
- * 
- * @param args [description]
- */
-void createPipe(char *args[], char **env)
-{
-    int fd[2];
-    pipe(fd);
-
-    dup2(fd[1], 1);
-    close(fd[1]);
-
-    printf("args = %s\n", *args);
-
-    run(args, env);
-
-    dup2(fd[0], 0);
-    close(fd[0]);
 }
 
 void	check_quotes(char line, int *flags)
@@ -183,29 +147,30 @@ char *tokenize(char *input)
     int i;
     int j = 0;
 	int	flags;
+	int	len;
     char *tokenized = (char *)malloc((MAX_LINE * 2) * sizeof(char));
 
-    // add spaces around special characters
 	flags = 0;
-    for (i = 0; i < strlen(input); i++) {
+	len = ft_strlen(input);
+	i = 0;
+    while (i < len)
+	{
 		check_quotes(input[i], &flags);
-        if (flags || input[i] != '>' && input[i] != '<' && input[i] != '|' && input[i] != ';') {
+        if (flags || input[i] != '>' && input[i] != '<' && input[i] != '|' && input[i] != ';')
             tokenized[j++] = input[i];
-        } else {
+        else
+		{
             tokenized[j++] = ' ';
-            tokenized[j++] = input[i];
+			if (input[i + 1] && input[i] == '>' && input[i + 1] == '>')
+            	tokenized[j++] = input[i++];
+			tokenized[j++] = input[i];
             tokenized[j++] = ' ';
         }
+		i++;
     }
     tokenized[j++] = '\0';
     return tokenized;
 }
-
-/**
- * Runs a basic shell.
- * 
- * @return 0 upon completion
- */
 
 void	init_shell(void)
 {
@@ -221,7 +186,7 @@ void	print_dir(void)
 	char	cwd[256];
 	getcwd(cwd, sizeof(cwd));
 	write(1, cwd, strlen(cwd));
-	write(1, "> ", 2);
+	write(1, "> ", 3);
 }
 
 char		*ft_strndup(char *src, int size)
@@ -243,45 +208,6 @@ char		*ft_strndup(char *src, int size)
 	return (arr);
 }
 
-
-char 	**minishell_split(char *line, char c)
-{
-	int	i;
-	int	j;
-	int	flags;
-	int count;
-	char **tmp;
-
-	i = 0;
-	flags = 0;
-	count = 0;
-	while (line[i])
-	{
-		if (line[i] == c)
-			count++;
-		i++;
-	}
-	if (!(tmp = (char **)malloc(sizeof(char*) * (count + 2))))
-		return (NULL);
-	i = 0;
-	count = 0;
-	j = 0;
-	while (line[i])
-	{
-		check_quotes(line[i], &flags);
-		if (!flags && line[i] == c)
-		{
-			tmp[count] = ft_strndup(line + j, i - j - 1);
-			count++;
-			j = i + 1;
-		}
-		i++;
-	}
-	tmp[count++] = ft_strdup(line + j);
-	tmp[count] = 0;
-	return (tmp);
-}
-
 char	*ft_strtok(char *s, char *d)
 {
 	static char *input;
@@ -301,10 +227,10 @@ char	*ft_strtok(char *s, char *d)
 		check_quotes(input[i], &flags);
 		if (!flags && input[i] == d[0])
 		{
+			input[i++] = '\0';
 			while (input[i] == d[0])
 				i++;
 			tmp = ft_strdup(input + i);
-			input[i - 1] = '\0';
 			res = input;
 			input = tmp;
 			return (res);
@@ -316,67 +242,158 @@ char	*ft_strtok(char *s, char *d)
 	return (res);
 }
 
+void	dup_n_run_pipe(int i, int *fd, int pipe_num, char **args, char **env)
+{
+	int	j;
+
+	if (i > 0)
+		dup2(fd[(i - 1) * 2], 0);
+	j = 0;
+	while (j < (pipe_num * 2))
+		close(fd[j++]);
+	check_path_n_execve(args, env);
+}
+
+char	**ft_strtok_dimensional_array(char **s, char *c)
+{
+	static char **args;
+	char **res;
+	int	i;
+
+	i = 0;
+	if (s != NULL)
+		args = s;
+	if (args == (void *)0)
+		return (NULL);
+	res =  args;
+	while (args[i])
+	{
+		if (args[i][0] == *c)
+		{
+			free(args[i]);
+			args[i] = NULL;
+			args = args + i + 1;
+			return (res);
+		}
+		i++;
+	}
+	res = args;
+	args = NULL;
+	return (res);
+}
+
+void execute_pipe(char **args, int flags, char **env)
+{
+	int	status;
+	int	i;
+	int *fd;
+	char **tmp;
+	pid_t pid;
+
+	i = 0;
+	tmp = ft_strtok_dimensional_array(args, "|");
+	if (!(fd = malloc(sizeof(int) * (flags * 2))))
+		return ;
+	while (i < flags)
+		pipe(fd + (i++ * 2));
+	i = 0;
+	while (i < flags)
+	{
+		if ((pid = fork()) == 0)
+		{
+			dup2(fd[i * 2 + 1], 1);
+			dup_n_run_pipe(i, fd, flags, tmp, env);
+		}
+		tmp = ft_strtok_dimensional_array(NULL, "|");
+		i++;
+	}
+	if ((pid = fork()) == 0)
+		dup_n_run_pipe(i, fd, flags, tmp, env);
+	i = 0;
+	while (i < flags * 2)
+		close(fd[i++]);
+	i = -1;
+	while (++i <= flags)
+		wait(&status);
+	redirect_in("/dev/tty");
+    redirect_out("/dev/tty");
+	free(fd);
+}
+
+void	run_or_pipe(char **args, int *i, int *flags, char **env)
+{
+	args[*i] = NULL;
+	if (!*flags)
+		run(args, env);
+	else
+		execute_pipe(args, *flags, env);
+	*flags = 0;
+	*i = 0;
+}
+
+void	redirection(char *arg, char *file_name)
+{
+	if (*arg == '<')
+		redirect_in(file_name);
+	else if (*arg == '>')
+	{
+		if (arg[1] == '>')
+			redirect_append(file_name);
+		else
+			redirect_out(file_name);
+	}
+}
+
+void	init_minishell(char *tokens, char **env)
+{
+	char *args[MAX_LINE];
+	int	flags;
+	char *arg;
+	int	i;
+
+	arg = ft_strtok(tokens, " ");
+	i = 0;
+	flags = 0;
+	while (arg) 
+	{
+		if (*arg == '<' || *arg == '>')
+		{
+			redirection(arg, ft_strtok(NULL, " "));
+			if ((arg = ft_strtok(NULL, " ")) != NULL)
+			{
+				run_or_pipe(args, &i, &flags, env);
+				continue ;
+			}
+		}
+		else if (*arg == '|')
+		{
+			flags++;
+			args[i++] = arg;
+		}
+		else if (*arg == ';')
+			run_or_pipe(args, &i, &flags, env);
+		else
+			args[i++] = arg;
+		arg = ft_strtok(NULL, " ");
+	}
+	run_or_pipe(args, &i, &flags, env);
+}
+
 int main(int ac, char **av, char **env)
 {
-    char *args[MAX_LINE]; // command line arguments
+    char	*args[MAX_LINE];
     char	*input;
-	int		flags;
-	char *tmp;
+	char	*tokens;
 
     init_shell();
+	/* mtak */
+	init_list(env);
+
     while (should_run) {
 		print_dir();
 		get_next_line(&input);
-printf("input : %s\n", input);
-
-        char *tokens;
         tokens = tokenize(input);
-
-        if (tokens[strlen(tokens) - 1] == '&') {
-            should_wait = 0;
-            tokens[strlen(tokens) - 1] = '\0';
-        }
-		char *arg = ft_strtok(tokens, " ");
-        int i = 0;
-
-/* export 구현 */
-		t_list *envlst;
-		init_list(&envlst, env);
-		if (!ft_strncmp(input, "export", 6))
-			func_export(input, &envlst);
-/* unset 구현 */
-		if (!ft_strncmp(input, "unset", 5))
-			func_unset(input, &envlst);
-/* env 구현 */
-		if (!ft_strncmp(input, "env", 3))
-			func_env(envlst);
-
-
-        while (arg) {
-            if (*arg == '<') {
-                redirectIn(ft_strtok(NULL, " "));
-            } else if (*arg == '>') {
-                redirectOut(ft_strtok(NULL, " "));
-            } else if (*arg == '|') {
-                args[i] = NULL;
-                createPipe(args, env);
-                i = 0;
-            } 
-            else if (*arg == ';') {
-                args[i] = NULL;
-                run(args, env);
-                i = 0;
-            }
-            else {
-                args[i] = arg;
-                i++;
-            }
-			arg = ft_strtok(NULL, " ");
-			printf("arg : %s\n", arg);
-        }
-        args[i] = NULL;
-  
-        run(args, env);
+		init_minishell(tokens, env);
     }
     return 0;
 }
