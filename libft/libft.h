@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libft.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: seokim <seokim@student.42seoul.kr>         +#+  +:+       +#+        */
+/*   By: mtak <mtak@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/21 21:30:31 by seokim            #+#    #+#             */
-/*   Updated: 2021/01/02 00:07:25 by seokim           ###   ########.fr       */
+/*   Updated: 2021/06/01 13:22:47 by mtak             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,5 +75,8 @@ void				ft_lstclear(t_list **lst, void (*del)(void *));
 void				ft_lstiter(t_list *lst, void (*f)(void *));
 t_list				*ft_lstmap(t_list *lst, void *(*f)(void *),
 void (*del)(void *));
-
+int					ft_strncmp_env(char *s1, char *s2, unsigned int n);
+char	*ft_strcjoin(char *str, char c);
+int	ft_calloc_m(size_t n, size_t size, void **ret);
+char		*ft_strndup_m(char *src, int size);
 #endif

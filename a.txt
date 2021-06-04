@@ -1,3 +1,0 @@
--rw-r--r--   1 mtak  2020_seoul   1626 May 29 18:59 minishell.h
--rwxr-xr-x   1 mtak  2020_seoul  52808 May 29 18:59 shell
--rw-r--r--   1 mtak  2020_seoul   6975 May 29 18:59 shell.c
