@@ -1,0 +1,115 @@
+1. Simple Command
+/bin/ls
+/bin/echo
+/bin/cat
+
+2. Arguments
+/bin/ls -l .
+/bin/echo Hello
+/bin/cat srcs/main.c
+
+3. echo
+echo
+echo Hello
+echo -n Hello
+echo -nnnn Hello
+echo -n -n -n Hello
+echo Hel          lo
+
+4. exit
+exit
+exit 3
+exit 123
+exit a
+
+5. Return value of a process
+0 : success (/bin/ls -l . -> echo $?)
+1 : file not found (/bin/ls -l invalid -> echo $?)
+127 : cmd not found (asdf)
+126 : is dir (/bin)
+258 : syntax error (>>>>>)
+130 : child int (cat -> Ctrl-C)
+131 : child quit (cat -> Ctrl-\)
+
+6. Semicolons
+echo Hello ; pwd ; ls
+echo Hello;pwd;ls
+echo Hello            ;  pwd        ;     ls
+echo Hello ; exit ; echo World
+
+7. Signal
+Ctrl-C
+Ctrl-D
+Ctrl+\
+
+8. Double Quotes
+echo "Hello" | cat -e
+echo "Hello
+echo "  Hello ; echo 123       " | cat -e
+echo "  \\\" \$HOME $HOME  "
+echo "'$HOME'"
+
+9 ~ 11. env + export + unset
+env
+export TEST1=1 -> env, export 확인
+export TEST2 -> env, export 확인
+export TEST3= -> env, export 확인
+unset TEST1 -> env, export 확인
+unset TEST2 -> env, export 확인
+unset TEST3 -> env, export 확인
+
+12. Environment Variables
+echo $HOME
+echo $PATH
+echo "$HOME"
+echo "$PATH"
+echo '$HOME'
+echo '$PATH'
+
+13 ~ 14. cd + pwd
+pwd ls
+cd srcs -> pwd ls
+cd . -> pwd ls
+cd .. -> pwd ls
+cd ../../../../../../../../../
+cd ././././././././
+cd ../../././../.././././../
+cd invalid -> echo $?
+
+15. Relative Path
+ls -l
+cat srcs/main.c
+ls -l ../../.././././../
+
+16. Environment Path
+ls -> unset PATH -> ls
+(bash: ls: No such file or directory)
+PATH에 가장 왼쪽에 있는 디렉터리 (path1 & path2)
+
+17. Simple Quotes
+echo 'Hello'
+echo 'Hello
+echo ''
+echo '$HOME'
+echo '  $HOME   ;  ; ; echo $PATH $ '
+echo '\\\\""""'
+echo '"$HOME"'
+
+18. Redirection
+echo Hello > tmp (새로 만들어)
+echo World >> tmp (추가모드)
+cat < tmp
+grep int < srcs/main.c
+echo Hello > tmp1 > tmp2 > tmp3
+> tmp4 echo ABC
+ls -l > tmp6 | grep d
+
+19. Pipe
+cat /etc/passwd | grep ':' | more
+ls -l | grep d
+ls invalid | grep d | more
+ls -l | grep d > tmp5
+
+20. Go Crazy
+askdfjasdkhakdjfhadfhadjkadhfjkahdfjksdfuiyweuifhweuifhwuihfiwudhfiuwhdfuiwd
+echo a s k d f j a s d k h a k d j f h a d f h a d j k a d h f j k a h d f j k s d f u i y
